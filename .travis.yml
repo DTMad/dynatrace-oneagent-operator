@@ -30,8 +30,8 @@ env:
   matrix:
     - SNAPSHOT_MASTER=true IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot" GCR=false
     - SNAPSHOT_QUAY=true IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d" GCR=false
-    - IMAGE=$OAO_IMAGE_DOCKER_HUB GCR=false CREATE_MANIFEST=true
-    - IMAGE=$OAO_IMAGE_RHCC GCR=false CREATE_MANIFEST=true
+    - IMAGE=$OAO_IMAGE_DOCKER_HUB GCR=false
+    - IMAGE=$OAO_IMAGE_RHCC GCR=false
     - GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=$OAO_IMAGE_GCR_DEV
     - GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
 
@@ -123,16 +123,7 @@ jobs:
       stage: deploy
       name: Deploy snapshot master AMD
       arch: amd64
-      if: (branch = master) AND (tag IS blank) AND (SNAPSHOT_MASTER = true)
-      workspaces:
-        use:
-          - ws_amd
-          - dockerconfig
-
-    - <<: *deploy
-      name: Deploy snapshot quay AMD
-      arch: amd64
-      if: (branch != master) AND (tag IS blank) AND (SNAPSHOT_QUAY = true)
+      if: (branch = master) AND (tag IS blank)
       workspaces:
         use:
           - ws_amd
@@ -153,16 +144,7 @@ jobs:
       stage: deploy
       name: Deploy snapshot master ARM
       arch: arm64
-      if: (branch = master) AND (tag IS blank) AND (SNAPSHOT_MASTER = true)
-      workspaces:
-        use:
-          - ws_arm
-          - dockerconfig
-
-    - <<: *deploy
-      name: Deploy snapshot quay ARM
-      arch: arm64
-      if: (branch != master) AND (tag IS blank) AND (SNAPSHOT_QUAY = true)
+      if: (branch = master) AND (tag IS blank)
       workspaces:
         use:
           - ws_arm
@@ -187,7 +169,7 @@ jobs:
     - <<: *create_manifest
       stage: manifest
       name: Create manifest for release
-      if: tag =~ /^v.*/ AND (CREATE_MANIFEST = true)
+      if: tag =~ /^v.*/ AND ($GCR = false)
 
       ######################### Prepare CSV #########################
 
