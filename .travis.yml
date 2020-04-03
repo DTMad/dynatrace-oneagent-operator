@@ -185,7 +185,7 @@ jobs:
     - <<: *create_manifest
       stage: manifest
       name: Create manifest for release
-      if: (tag =~ /^v.*/) AND ($GCR = false)
+      if: (tag =~ /^v.*/) AND (env(GCR) = false)
 
       ######################### Prepare CSV #########################
 
