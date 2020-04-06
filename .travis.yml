@@ -8,6 +8,9 @@ os: linux
 notifications:
   email:
     on_success: never
+    on_error: never
+    on_failure: never
+    on_cancel: never
 
 cache:
   directories:
@@ -36,28 +39,28 @@ env:
     - GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
 
 ######################### DEFINING BASE STEPS #########################
-x_base_steps:
-  - &build
-    script: ./build/build.sh
-    cache:
-        directories:
-          - $HOME/.cache/go-build
-          - $HOME/gopath/pkg/mod
+# x_base_steps:
+#   - &build
+#     script: ./build/build.sh
+#     cache:
+#         directories:
+#           - $HOME/.cache/go-build
+#           - $HOME/gopath/pkg/mod
 
-  - &deploy
-    script: ./build/deploy.sh
+#   - &deploy
+#     script: ./build/deploy.sh
 
-  - &create_manifest
-    stage: manifest
-    install: skip
-    language: generic
-    git:
-      clone: false
-    script:
-      - docker manifest create $IMAGE:$TAG $IMAGE:$TAG-arm64 $IMAGE:$TAG-amd64
-      - docker manifest push $IMAGE:$TAG
-    workspaces:
-      use: dockerconfig
+#   - &create_manifest
+#     stage: manifest
+#     install: skip
+#     language: generic
+#     git:
+#       clone: false
+#     script:
+#       - docker manifest create $IMAGE:$TAG $IMAGE:$TAG-arm64 $IMAGE:$TAG-amd64
+#       - docker manifest push $IMAGE:$TAG
+#     workspaces:
+#       use: dockerconfig
 
 jobs:
   include:
