@@ -10,9 +10,6 @@ dist: xenial
 notifications:
   email:
     on_success: never
-    on_error: never
-    on_failure: never
-    on_cancel: never
 
 cache:
   directories:
@@ -32,13 +29,6 @@ env:
     - TAG=$TRAVIS_TAG
     - VERSION_TAG=/^v.*/
     - DOCKER_CLI_EXPERIMENTAL=enabled
-  jobs:
-    - IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot" GCR=false
-    - IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d" GCR=false
-    - IMAGE=$OAO_IMAGE_DOCKER_HUB GCR=false
-    - IMAGE=$OAO_IMAGE_RHCC GCR=false
-    - GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=$OAO_IMAGE_GCR_DEV
-    - GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
 
 jobs:
   include:
@@ -112,6 +102,7 @@ jobs:
     name: Deploy snapshot master AMD
     arch: amd64
     if: (branch = master) AND (tag IS blank)
+    env: IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot"
     workspaces:
       use:
         - ws_amd
@@ -119,12 +110,28 @@ jobs:
 
   - <<: *deploy
     name: Deploy release AMD
-    arch: amd64
     if: tag =~ /^v.*/
-    workspaces:
-      use:
-        - ws_amd
-        - dockerconfig
+    env: IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d"
+
+  - <<: *deploy
+    name: Deploy release AMD
+    if: tag =~ /^v.*/
+    env: IMAGE=$OAO_IMAGE_DOCKER_HUB
+
+  - <<: *deploy
+    name: Deploy release AMD
+    if: tag =~ /^v.*/
+    env: IMAGE=$OAO_IMAGE_RHCC
+
+  - <<: *deploy
+    name: Deploy release AMD
+    if: tag =~ /^v.*/
+    env: GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=$OAO_IMAGE_GCR_DEV
+
+  - <<: *deploy
+    name: Deploy release AMD
+    if: tag =~ /^v.*/
+    env: GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
 
     ######################### ARM #########################
 
@@ -133,6 +140,7 @@ jobs:
     name: Deploy snapshot master ARM
     arch: arm64
     if: (branch = master) AND (tag IS blank)
+    env: IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot"
     workspaces:
       use:
         - ws_arm
@@ -142,6 +150,27 @@ jobs:
     name: Deploy release ARM
     arch: arm64
     if: tag =~ /^v.*/
+    env: IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d"
+    workspaces:
+      use:
+        - ws_arm
+        - dockerconfig
+
+  - <<: *deploy
+    name: Deploy release ARM
+    arch: arm64
+    if: tag =~ /^v.*/
+    env: IMAGE=$OAO_IMAGE_DOCKER_HUB
+    workspaces:
+      use:
+        - ws_arm
+        - dockerconfig
+
+  - <<: *deploy
+    name: Deploy release ARM
+    arch: arm64
+    if: tag =~ /^v.*/
+    env: IMAGE=$OAO_IMAGE_RHCC
     workspaces:
       use:
         - ws_arm
@@ -155,6 +184,7 @@ jobs:
       language: generic
       name: Create manifest for snapshot master
       if: (branch = master) AND (tag IS blank)
+      env: IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot"
       git:
         clone: false
       script:
@@ -167,6 +197,13 @@ jobs:
     stage: manifest
     name: Create manifest for release
     if: (tag =~ /^v.*/) AND (env(GCR) = false)
+    env: IMAGE=$OAO_IMAGE_DOCKER_HUB
+
+  - <<: *create_manifest
+    stage: manifest
+    name: Create manifest for release
+    if: (tag =~ /^v.*/) AND (env(GCR) = false)
+    env: IMAGE=$OAO_IMAGE_RHCC
 
     ######################### Prepare CSV #########################
 
