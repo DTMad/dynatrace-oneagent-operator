@@ -40,15 +40,13 @@ env:
     - GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=$OAO_IMAGE_GCR_DEV
     - GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
 
-script: foo.sh
-
 jobs:
   include:
   - stage: preparation
     name: Tests
-    env:
-      - Foo=bar
-      - bar=foo
+    matrix:
+      - env: Foo=bar
+      - env: bar=foo
     script: ./build/test.sh
     cache:
       directories:
