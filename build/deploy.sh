@@ -2,9 +2,7 @@
 
 if [[ "$GCR" == "true" ]]; then
     echo "$GCLOUD_SERVICE_KEY" | base64 -d | docker login -u _json_key --password-stdin https://gcr.io
-    # echo "$GCLOUD_SERVICE_KEY" | base64 -d | gcloud auth activate-service-account --key-file=-
     gcloud --quiet config set project "$GCP_PROJECT"
-    # gcloud auth configure-docker --quiet
 else
     TAG=$TAG-$TRAVIS_CPU_ARCH
 fi

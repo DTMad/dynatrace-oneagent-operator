@@ -213,3 +213,5 @@ jobs:
     deploy:
       provider: releases
       file: artefacts/*
+      on:
+        tags: true
