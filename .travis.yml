@@ -182,13 +182,13 @@ jobs:
   - <<: *create_manifest
     stage: manifest
     name: Create manifest for release for DockerHub
-    if: (tag =~ /^v.*/) AND (env(GCR) = false)
+    if: tag =~ /^v.*/
     env: IMAGE=$OAO_IMAGE_DOCKER_HUB
 
   - <<: *create_manifest
     stage: manifest
     name: Create manifest for release for RHCC
-    if: (tag =~ /^v.*/) AND (env(GCR) = false)
+    if: tag =~ /^v.*/
     env: IMAGE=$OAO_IMAGE_RHCC_SCAN
 
     ######################### Prepare CSV #########################
