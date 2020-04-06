@@ -15,12 +15,12 @@ cache:
     - $HOME/.cache/go-build
     - $HOME/gopath/pkg/mod
 
-stages:
-  - preparation
-  - build
-  - deploy
-  - manifest
-  - release
+# stages:
+#   - preparation
+#   - build
+#   - deploy
+#   - manifest
+#   - release
 
 env:
   global:
