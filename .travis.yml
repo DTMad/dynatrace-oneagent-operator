@@ -125,7 +125,7 @@ jobs:
 
   - <<: *deploy_amd
     name: Deploy release AMD to GCP dev
-    if: tag =~ /^v.*/
+    # if: tag =~ /^v.*/
     env: GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=GCLOUD_SERVICE_KEY_DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=gcr.io/dynatrace-marketplace-dev/test
 
   # - <<: *deploy_amd
