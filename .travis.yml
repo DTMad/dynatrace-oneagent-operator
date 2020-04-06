@@ -68,129 +68,129 @@ jobs:
         directories:
           - /usr/local/kubebuilder/bin
 
-    - stage: preparation
-      name: Verify OLM manifest
-      language: python
-      python: "3.7"
-      script:
-        - pip3 install operator-courier==2.1.7
-        - operator-courier verify ./deploy/olm/kubernetes
-        - operator-courier verify ./deploy/olm/openshift
+    # - stage: preparation
+    #   name: Verify OLM manifest
+    #   language: python
+    #   python: "3.7"
+    #   script:
+    #     - pip3 install operator-courier==2.1.7
+    #     - operator-courier verify ./deploy/olm/kubernetes
+    #     - operator-courier verify ./deploy/olm/openshift
 
-    - stage: preparation
-      name: Set configs
-      install: skip
-      language: shell
-      git:
-        clone: false
-      script:
-        - mkdir -p ~/.docker && chmod 0700 ~/.docker
-        - touch ~/.docker/config.json && chmod 0600 ~/.docker/config.json
-        - base64 -d >~/.docker/config.json <<<"$OAO_DOCKER_AUTH"
-      workspaces:
-        create:
-          name: dockerconfig
-          paths:
-            - $HOME/.docker
+    # - stage: preparation
+    #   name: Set configs
+    #   install: skip
+    #   language: shell
+    #   git:
+    #     clone: false
+    #   script:
+    #     - mkdir -p ~/.docker && chmod 0700 ~/.docker
+    #     - touch ~/.docker/config.json && chmod 0600 ~/.docker/config.json
+    #     - base64 -d >~/.docker/config.json <<<"$OAO_DOCKER_AUTH"
+    #   workspaces:
+    #     create:
+    #       name: dockerconfig
+    #       paths:
+    #         - $HOME/.docker
 
-    ######################### Publish release artefacts #########################
+    # ######################### Publish release artefacts #########################
 
-    - stage: release
-      name: publish_release
-      if: tag =~ /^v.*/
-      before_deploy:
-        template_image="dynatrace-oneagent-operator:snapshot"
-        current_image="dynatrace-agent-operator:${TRAVIS_TAG}"
-        mkdir artefacts
-        sed "s/${template_image}/${current_image}/g" deploy/kubernetes.yaml > artefacts/kubernetes.yaml
-        sed "s/docker.io\/dynatrace\/${template_image}/registry.connect.redhat.com\/dynatrace\/${current_image}/g" deploy/openshift.yaml > artefacts/openshift.yaml
-      deploy:
-        provider: releases
-        file: artefacts/*
+    # - stage: release
+    #   name: publish_release
+    #   if: tag =~ /^v.*/
+    #   before_deploy:
+    #     template_image="dynatrace-oneagent-operator:snapshot"
+    #     current_image="dynatrace-agent-operator:${TRAVIS_TAG}"
+    #     mkdir artefacts
+    #     sed "s/${template_image}/${current_image}/g" deploy/kubernetes.yaml > artefacts/kubernetes.yaml
+    #     sed "s/docker.io\/dynatrace\/${template_image}/registry.connect.redhat.com\/dynatrace\/${current_image}/g" deploy/openshift.yaml > artefacts/openshift.yaml
+    #   deploy:
+    #     provider: releases
+    #     file: artefacts/*
 
-    ######################### BUILD #########################
+    # ######################### BUILD #########################
 
-    - <<: *build
-      stage: build
-      name: Build for AMD
-      arch: amd64
-      workspaces:
-        create:
-          name: ws_amd
-          paths:
-            - LICENSE
-            - build
+    # - <<: *build
+    #   stage: build
+    #   name: Build for AMD
+    #   arch: amd64
+    #   workspaces:
+    #     create:
+    #       name: ws_amd
+    #       paths:
+    #         - LICENSE
+    #         - build
 
-    - <<: *build
-      stage: build
-      name: Build for ARM
-      arch: arm64
-      workspaces:
-        create:
-          name: ws_arm
-          paths:
-            - LICENSE
-            - build
+    # - <<: *build
+    #   stage: build
+    #   name: Build for ARM
+    #   arch: arm64
+    #   workspaces:
+    #     create:
+    #       name: ws_arm
+    #       paths:
+    #         - LICENSE
+    #         - build
 
-    ######################### AMD #########################
+    # ######################### AMD #########################
 
-    - <<: *deploy
-      stage: deploy
-      name: Deploy snapshot master AMD
-      arch: amd64
-      if: (branch = master) AND (tag IS blank)
-      workspaces:
-        use:
-          - ws_amd
-          - dockerconfig
+    # - <<: *deploy
+    #   stage: deploy
+    #   name: Deploy snapshot master AMD
+    #   arch: amd64
+    #   if: (branch = master) AND (tag IS blank)
+    #   workspaces:
+    #     use:
+    #       - ws_amd
+    #       - dockerconfig
 
-    - <<: *deploy
-      name: Deploy release AMD
-      arch: amd64
-      if: tag =~ /^v.*/
-      workspaces:
-        use:
-          - ws_amd
-          - dockerconfig
+    # - <<: *deploy
+    #   name: Deploy release AMD
+    #   arch: amd64
+    #   if: tag =~ /^v.*/
+    #   workspaces:
+    #     use:
+    #       - ws_amd
+    #       - dockerconfig
 
-      ######################### ARM #########################
+    #   ######################### ARM #########################
 
-    - <<: *deploy
-      stage: deploy
-      name: Deploy snapshot master ARM
-      arch: arm64
-      if: (branch = master) AND (tag IS blank)
-      workspaces:
-        use:
-          - ws_arm
-          - dockerconfig
+    # - <<: *deploy
+    #   stage: deploy
+    #   name: Deploy snapshot master ARM
+    #   arch: arm64
+    #   if: (branch = master) AND (tag IS blank)
+    #   workspaces:
+    #     use:
+    #       - ws_arm
+    #       - dockerconfig
 
-    - <<: *deploy
-      name: Deploy release ARM
-      arch: arm64
-      if: tag =~ /^v.*/
-      workspaces:
-        use:
-          - ws_arm
-          - dockerconfig
+    # - <<: *deploy
+    #   name: Deploy release ARM
+    #   arch: arm64
+    #   if: tag =~ /^v.*/
+    #   workspaces:
+    #     use:
+    #       - ws_arm
+    #       - dockerconfig
 
-      ######################### Create Docker manifest #########################
+    #   ######################### Create Docker manifest #########################
 
-    - <<: *create_manifest
-      stage: manifest
-      name: Create manifest for snapshot master
-      if: (branch = master) AND (tag IS blank)
+    # - <<: *create_manifest
+    #   stage: manifest
+    #   name: Create manifest for snapshot master
+    #   if: (branch = master) AND (tag IS blank)
 
-    - <<: *create_manifest
-      stage: manifest
-      name: Create manifest for release
-      if: (tag =~ /^v.*/) AND (env(GCR) = false)
+    # - <<: *create_manifest
+    #   stage: manifest
+    #   name: Create manifest for release
+    #   if: (tag =~ /^v.*/) AND (env(GCR) = false)
 
-      ######################### Prepare CSV #########################
+    #   ######################### Prepare CSV #########################
 
-    - stage: release
-      name: Prepare CSV file
-      if: tag =~ /^v.*/
-      install: skip
-      script: ./build/prepare_csv.sh
+    # - stage: release
+    #   name: Prepare CSV file
+    #   if: tag =~ /^v.*/
+    #   install: skip
+    #   script: ./build/prepare_csv.sh
 
