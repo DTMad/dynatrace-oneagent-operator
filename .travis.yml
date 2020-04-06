@@ -23,11 +23,11 @@ cache:
 #   - release
 
 env:
-  global:
-    - TAG=$TRAVIS_TAG
-    - VERSION_TAG=/^v.*/
-    - DOCKER_CLI_EXPERIMENTAL=enabled
-  jobs:
+  # global:
+  #   - TAG=$TRAVIS_TAG
+  #   - VERSION_TAG=/^v.*/
+  #   - DOCKER_CLI_EXPERIMENTAL=enabled
+  # jobs:
     - IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot" GCR=false
     - IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d" GCR=false
     - IMAGE=$OAO_IMAGE_DOCKER_HUB GCR=false
