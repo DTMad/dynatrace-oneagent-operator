@@ -28,8 +28,8 @@ env:
     - VERSION_TAG=/^v.*/
     - DOCKER_CLI_EXPERIMENTAL=enabled
   jobs:
-    - SNAPSHOT_MASTER=true IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot" GCR=false
-    - SNAPSHOT_QUAY=true IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d" GCR=false
+    - IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot" GCR=false
+    - IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d" GCR=false
     - IMAGE=$OAO_IMAGE_DOCKER_HUB GCR=false
     - IMAGE=$OAO_IMAGE_RHCC GCR=false
     - GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=$OAO_IMAGE_GCR_DEV
@@ -60,7 +60,7 @@ x_base_steps:
       use: dockerconfig
 
 jobs:
-  exclude:
+  include:
     - stage: preparation
       name: Tests
       script: ./build/test.sh
@@ -108,7 +108,6 @@ jobs:
         provider: releases
         file: artefacts/*
 
-  include:
     ######################### BUILD #########################
 
     - <<: *build
