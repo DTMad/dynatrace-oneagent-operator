@@ -38,6 +38,12 @@ env:
     - GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=$OAO_IMAGE_GCR_DEV
     - GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
 
+stage: preparation
+name: Tests
+script: ./build/test.sh
+cache:
+  directories:
+    - /usr/local/kubebuilder/bin
 ######################### DEFINING BASE STEPS #########################
 # x_base_steps:
 #   - &build
