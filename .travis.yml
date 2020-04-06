@@ -96,10 +96,10 @@ jobs:
           - build
 
   ######################### AMD #########################
-  - &deploy
+  - &deploy_amd
     script: ./build/deploy.sh
     stage: deploy
-    name: Deploy snapshot master AMD
+    name: Deploy snapshot master AMD to DockerHub
     arch: amd64
     if: (branch = master) AND (tag IS blank)
     env: IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot"
@@ -108,36 +108,37 @@ jobs:
         - ws_amd
         - dockerconfig
 
-  - <<: *deploy
-    name: Deploy release AMD
+  - <<: *deploy_amd
+    name: Deploy release AMD to Quay
     if: tag =~ /^v.*/
     env: IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d"
 
-  - <<: *deploy
-    name: Deploy release AMD
+  - <<: *deploy_amd
+    name: Deploy release AMD to DockerHub
     if: tag =~ /^v.*/
     env: IMAGE=$OAO_IMAGE_DOCKER_HUB
 
-  - <<: *deploy
-    name: Deploy release AMD
+  - <<: *deploy_amd
+    name: Deploy release AMD to RHCC
     if: tag =~ /^v.*/
-    env: IMAGE=$OAO_IMAGE_RHCC
+    env: IMAGE=$OAO_IMAGE_RHCC_SCAN
 
-  - <<: *deploy
-    name: Deploy release AMD
+  - <<: *deploy_amd
+    name: Deploy release AMD to GCP dev
     if: tag =~ /^v.*/
-    env: GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=$OAO_IMAGE_GCR_DEV
+    env: GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=GCLOUD_SERVICE_KEY_DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=TEST
 
-  - <<: *deploy
-    name: Deploy release AMD
-    if: tag =~ /^v.*/
-    env: GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
+  # - <<: *deploy_amd
+  #   name: Deploy release AMD to GCP prod
+  #   if: tag =~ /^v.*/
+  #   env: GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
 
     ######################### ARM #########################
 
-  - <<: *deploy
+  - &deploy_arm
+    script: ./build/deploy.sh
     stage: deploy
-    name: Deploy snapshot master ARM
+    name: Deploy snapshot master ARM to DockerHub
     arch: arm64
     if: (branch = master) AND (tag IS blank)
     env: IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot"
@@ -146,35 +147,20 @@ jobs:
         - ws_arm
         - dockerconfig
 
-  - <<: *deploy
-    name: Deploy release ARM
-    arch: arm64
+  - <<: *deploy_arm
+    name: Deploy release ARM to Quay
     if: tag =~ /^v.*/
     env: IMAGE=$OAO_IMAGE_QUAY TAG="snapshot-$(echo $TRAVIS_BRANCH | sed 's#[^a-zA-Z0-9_-]#-#g')" LABEL="quay.expires-after=10d"
-    workspaces:
-      use:
-        - ws_arm
-        - dockerconfig
 
-  - <<: *deploy
-    name: Deploy release ARM
-    arch: arm64
+  - <<: *deploy_arm
+    name: Deploy release ARM to DockerHub
     if: tag =~ /^v.*/
     env: IMAGE=$OAO_IMAGE_DOCKER_HUB
-    workspaces:
-      use:
-        - ws_arm
-        - dockerconfig
 
-  - <<: *deploy
-    name: Deploy release ARM
-    arch: arm64
+  - <<: *deploy_arm
+    name: Deploy release ARM to RHCC
     if: tag =~ /^v.*/
-    env: IMAGE=$OAO_IMAGE_RHCC
-    workspaces:
-      use:
-        - ws_arm
-        - dockerconfig
+    env: IMAGE=$OAO_IMAGE_RHCC_SCAN
 
     ######################### Create Docker manifest #########################
 
@@ -182,7 +168,7 @@ jobs:
       stage: manifest
       install: skip
       language: generic
-      name: Create manifest for snapshot master
+      name: Create manifest for snapshot master for DockerHub
       if: (branch = master) AND (tag IS blank)
       env: IMAGE=$OAO_IMAGE_DOCKER_HUB TAG="snapshot"
       git:
@@ -195,15 +181,15 @@ jobs:
 
   - <<: *create_manifest
     stage: manifest
-    name: Create manifest for release
+    name: Create manifest for release for DockerHub
     if: (tag =~ /^v.*/) AND (env(GCR) = false)
     env: IMAGE=$OAO_IMAGE_DOCKER_HUB
 
   - <<: *create_manifest
     stage: manifest
-    name: Create manifest for release
+    name: Create manifest for release for RHCC
     if: (tag =~ /^v.*/) AND (env(GCR) = false)
-    env: IMAGE=$OAO_IMAGE_RHCC
+    env: IMAGE=$OAO_IMAGE_RHCC_SCAN
 
     ######################### Prepare CSV #########################
 
