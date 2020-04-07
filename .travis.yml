@@ -209,5 +209,7 @@ jobs:
     deploy:
       provider: releases
       file: artefacts/*
+      api_key:
+        secure: O90QOf+O5cPUA8u6TrqxW4kcbU91xTcx80QyC6mrC13XZjut6e8zRCp+JvNGO7IbDpUcryWl4WNFBjxKNWQLnoFKAmUl8md4xpMMKdbOL6+/Pzyp/7aDpFExc6/MlsBovsA3R6JFRonW6yTzo2gi4e+B3nBSIWjorzA56l7yTo4d6vfirN50zuGlsW7bA9+ooXG3KgIeGJisd/PcKpeOSZkkyyy9cKUYy6/kyZtjtWoB6Y0jz8cCpZA92iUIu3X0UBOPWEiPloaIFgI6OOzR0cqb7cR7n2vC6oX2Oi1q55kbQP1Fb3fW5hIGXKTNk4R/QAy6oTTf5aDSzYQP9fC3BD0axYLDoqaMSKrhoIhi3IBGX/R2zjVBUbgAMoZhwOSwT0/+tZliK82Id+whAiIQ8xlzQ1OZbLlLnfHbaIk3SvlwjZ4LPGiIOJi2FvBzsIROVnuC/tPW6QWbFTpY7ozoqirRR866OXzpvq8RvncJjYQ2XKSOr83FwtfFbNnC0LlHGs3zBqWlHHwctYT+VJtBzKYhmrOIPs2tgNn3npisGH7CW0X5j4TxRW/H4fG+oQjUwELGtC0teFUcpidIa7v1FT8hEB5tuUH+riifDcAEJt8WvmCcBm9ku2ImmozSa7UJDMZNtqbt+cNPOAhVozBQCcZnds5u69jf4FPhfwpiFYs=
       on:
-        tags: true
+        repo: Dynatrace/dynatrace-oneagent-operator
