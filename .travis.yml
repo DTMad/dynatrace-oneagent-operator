@@ -32,24 +32,24 @@ env:
 
 jobs:
   include:
-  # - stage: preparation
-  #   name: Tests
-  #   matrix:
-  #     - env: Foo=bar
-  #     - env: bar=foo
-  #   script: ./build/test.sh
-  #   cache:
-  #     directories:
-  #       - /usr/local/kubebuilder/bin
+  - stage: preparation
+    name: Tests
+    matrix:
+      - env: Foo=bar
+      - env: bar=foo
+    script: ./build/test.sh
+    cache:
+      directories:
+        - /usr/local/kubebuilder/bin
 
-  # - stage: preparation
-  #   name: Verify OLM manifest
-  #   language: python
-  #   python: "3.7"
-  #   script:
-  #     - pip3 install operator-courier==2.1.7
-  #     - operator-courier verify ./deploy/olm/kubernetes
-  #     - operator-courier verify ./deploy/olm/openshift
+  - stage: preparation
+    name: Verify OLM manifest
+    language: python
+    python: "3.7"
+    script:
+      - pip3 install operator-courier==2.1.7
+      - operator-courier verify ./deploy/olm/kubernetes
+      - operator-courier verify ./deploy/olm/openshift
 
   - stage: preparation
     name: Set configs
@@ -84,16 +84,16 @@ jobs:
           - LICENSE
           - build
 
-  # - <<: *build
-  #   stage: build
-  #   name: Build for ARM
-  #   arch: arm64
-  #   workspaces:
-  #     create:
-  #       name: ws_arm
-  #       paths:
-  #         - LICENSE
-  #         - build
+  - <<: *build
+    stage: build
+    name: Build for ARM
+    arch: arm64
+    workspaces:
+      create:
+        name: ws_arm
+        paths:
+          - LICENSE
+          - build
 
   ######################### AMD #########################
   - &deploy_amd
@@ -125,13 +125,13 @@ jobs:
 
   - <<: *deploy_amd
     name: Deploy release AMD to GCP dev
-    # if: tag =~ /^v.*/
+    if: tag =~ /^v.*/
     env: GCR=true GCP_PROJECT=dynatrace-marketplace-dev GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_DEV GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_DEV IMAGE=gcr.io/dynatrace-marketplace-dev/test TAG="0.1"
 
-  # - <<: *deploy_amd
-  #   name: Deploy release AMD to GCP prod
-  #   if: tag =~ /^v.*/
-  #   env: GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
+  - <<: *deploy_amd
+    name: Deploy release AMD to GCP prod
+    if: tag =~ /^v.*/
+    env: GCR=true GCP_PROJECT=dynatrace-marketplace-prod GCLOUD_SERVICE_KEY=$GCLOUD_SERVICE_KEY_PROD GCP_SERVICE_ACCOUNT=$GCP_SERVICE_ACCOUNT_PROD IMAGE=$OAO_IMAGE_GCR_PROD
 
     ######################### ARM #########################
 
